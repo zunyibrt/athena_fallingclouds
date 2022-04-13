@@ -98,7 +98,7 @@ parser.add_argument('--eos',
 # --flux=[name] argument
 parser.add_argument('--flux',
                     default='default',
-                    choices=['default', 'hlle', 'hllc', 'lhllc', 'hlld', 'lhlld', 'roe', 'llf'], # noqa
+                    choices=['default', 'hlle', 'hllc', 'hlld', 'roe', 'llf'],
                     help='select Riemann solver')
 
 # --nghost=[value] argument
@@ -312,16 +312,8 @@ if args['flux'] == 'hllc' and args['eos'] == 'isothermal':
     raise SystemExit('### CONFIGURE ERROR: HLLC flux cannot be used with isothermal EOS')
 if args['flux'] == 'hllc' and args['b']:
     raise SystemExit('### CONFIGURE ERROR: HLLC flux cannot be used with MHD')
-if args['flux'] == 'lhllc' and args['eos'] == 'isothermal':
-    raise SystemExit('### CONFIGURE ERROR: LHLLC flux cannot be used with isothermal EOS') # noqa
-if args['flux'] == 'lhllc' and args['b']:
-    raise SystemExit('### CONFIGURE ERROR: LHLLC flux cannot be used with MHD')
 if args['flux'] == 'hlld' and not args['b']:
     raise SystemExit('### CONFIGURE ERROR: HLLD flux can only be used with MHD')
-if args['flux'] == 'lhlld' and args['eos'] == 'isothermal':
-    raise SystemExit('### CONFIGURE ERROR: LHLLD flux cannot be used with isothermal EOS') # noqa
-if args['flux'] == 'lhlld' and not args['b']:
-    raise SystemExit('### CONFIGURE ERROR: LHLLD flux can only be used with MHD')
 
 # Check relativity
 if args['s'] and args['g']:
@@ -475,13 +467,12 @@ if args['cxx'] == 'icpx':
     definitions['COMPILER_CHOICE'] = 'icpx'
     definitions['COMPILER_COMMAND'] = makefile_options['COMPILER_COMMAND'] = 'icpx'
     makefile_options['PREPROCESSOR_FLAGS'] = ''
-    # ICX drivers icx and icpx will accept ICC Classic Compiler options or Clang*/LLVM
-    # Compiler options
+    # ICX drivers icx and icpx will accept ICC Classic Compiler options or Clang*/LLVM Compiler options
     makefile_options['COMPILER_FLAGS'] = (
       '-O3 -std=c++11 -ipo -xhost -qopenmp-simd '
     )
-    # Currently unsupported, but "options to be supported" according to icpx
-    # -qnextgen-diag: '-inline-forceinline -qopt-prefetch=4 '
+    # Currently unsupported, but "options to be supported" according to icpx -qnextgen-diag
+    # '-inline-forceinline -qopt-prefetch=4 '
     makefile_options['LINKER_FLAGS'] = ''
     makefile_options['LIBRARY_FLAGS'] = ''
 if args['cxx'] == 'icpc':
@@ -671,8 +662,7 @@ if args['omp']:
         # preprocessor. Must install LLVM's OpenMP runtime library libomp beforehand
         makefile_options['COMPILER_FLAGS'] += ' -Xpreprocessor -fopenmp'
         makefile_options['LIBRARY_FLAGS'] += ' -lomp'
-    if (args['cxx'] == 'icpc' or args['cxx'] == 'icpc-debug' or args['cxx'] == 'icpc-phi'
-            or args['cxx'] == 'icpx'):
+    if args['cxx'] == 'icpc' or args['cxx'] == 'icpc-debug' or args['cxx'] == 'icpc-phi' or args['cxx'] == 'icpx':
         makefile_options['COMPILER_FLAGS'] += ' -qopenmp'
     if args['cxx'] == 'cray':
         makefile_options['COMPILER_FLAGS'] += ' -homp'
@@ -685,8 +675,7 @@ else:
     definitions['OPENMP_OPTION'] = 'NOT_OPENMP_PARALLEL'
     if args['cxx'] == 'cray':
         makefile_options['COMPILER_FLAGS'] += ' -hnoomp'
-    if (args['cxx'] == 'icpc' or args['cxx'] == 'icpc-debug' or args['cxx'] == 'icpc-phi'
-            or args['cxx'] == 'icpx'):
+    if args['cxx'] == 'icpc' or args['cxx'] == 'icpc-debug' or args['cxx'] == 'icpc-phi' or args['cxx'] == 'icpx':
         # suppressed messages:
         #   3180: pragma omp not recognized
         makefile_options['COMPILER_FLAGS'] += ' -diag-disable 3180'
@@ -831,3 +820,38 @@ if args['hdf5']:
 print('  Compiler:                   ' + args['cxx'])
 print('  Compilation command:        ' + makefile_options['COMPILER_COMMAND'] + ' '
       + makefile_options['PREPROCESSOR_FLAGS'] + ' ' + makefile_options['COMPILER_FLAGS'])
+
+
+# Store Configuration options in a log file
+flog = open('./configure.log', 'w')
+
+flog.write('Your Athena++ distribution has now been configured with the following options: \n')
+flog.write('  Problem generator:        ' + args['prob'] + '\n')
+flog.write('  Coordinate system:        ' + args['coord']+ '\n')
+flog.write('  Equation of state:        ' + args['eos']+ '\n')
+flog.write('  Riemann solver:           ' + args['flux']+ '\n')
+flog.write('  Magnetic fields:          ' + ('ON' if args['b'] else 'OFF')+ '\n')
+flog.write('  Number of scalars:        ' + args['nscalars'])
+flog.write('  Special relativity:       ' + ('ON' if args['s'] else 'OFF')+ '\n')
+flog.write('  General relativity:       ' + ('ON' if args['g'] else 'OFF')+ '\n')
+flog.write('  Frame transformations:    ' + ('ON' if args['t'] else 'OFF')+ '\n')
+flog.write('  Self-Gravity:             ' + self_grav_string)
+flog.write('  Super-Time-Stepping:      ' + ('ON' if args['sts'] else 'OFF'))
+flog.write('  Debug flags:              ' + ('ON' if args['debug'] else 'OFF')+ '\n')
+flog.write('  Code coverage flags:      ' + ('ON' if args['coverage'] else 'OFF'))
+flog.write('  Linker flags:             ' + makefile_options['LINKER_FLAGS'] + ' '
+                                          + makefile_options['LIBRARY_FLAGS'] + '\n')
+flog.write('  Floating-point precision: ' + ('single' if args['float'] else 'double'))
+flog.write('  Number of ghost cells:    ' + args['nghost']+ '\n')
+flog.write('  MPI parallelism:          ' + ('ON' if args['mpi'] else 'OFF')+ '\n')
+flog.write('  OpenMP parallelism:       ' + ('ON' if args['omp'] else 'OFF')+ '\n')
+flog.write('  FFT:                      ' + ('ON' if args['fft'] else 'OFF')+ '\n')
+flog.write('  HDF5 output:              ' + ('ON' if args['hdf5'] else 'OFF')+ '\n')
+if args['hdf5']:
+  flog.write('  HDF5 precision:           ' + ('double' if args['h5double'] else 'single')+ '\n')
+flog.write('  Compiler:                 ' + args['cxx']+ '\n')
+flog.write('  Compilation command:      ' + makefile_options['COMPILER_COMMAND'] + ' '
+                                          + makefile_options['PREPROCESSOR_FLAGS'] + ' ' 
+                                          + makefile_options['COMPILER_FLAGS']+ '\n')
+flog.close()
+flog.write
