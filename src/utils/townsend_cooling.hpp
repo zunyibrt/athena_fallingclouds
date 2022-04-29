@@ -4,7 +4,7 @@
 #include "../athena.hpp"
 #include "../athena_arrays.hpp"
 
-static const Real cooling_factor = 300.0;
+static const Real cooling_factor = 100.0;
 
 class Cooling {
 public:
@@ -252,8 +252,8 @@ auto Cooling::townsend(Real temp, Real rho, Real const dt) -> Real
   auto tnew = t_i*std::pow(1-oms*(coef/coef_n)*(t_n/t_i)*(tef_adj-tef_i),1/oms);
 
   // Return the new temperature if it is still above the temperature floor
-  //return std::max(tnew,tfloor);
-  return tnew;
+  return std::max(tnew,tfloor);
+  //return tnew;
 }
 
 // Adds a heating term via simple explicit first order scheme

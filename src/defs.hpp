@@ -86,9 +86,9 @@
 #define ENABLE_EXCEPTIONS
 
 // compiler options
-#define COMPILED_WITH "icpc"
+#define COMPILED_WITH "g++"
 #define COMPILER_COMMAND "mpicxx"
-#define COMPILED_WITH_OPTIONS " -O3 -std=c++11 -ipo -xMIC-AVX512 -inline-forceinline -qopenmp-simd -qopt-prefetch=4 -qoverride-limits -diag-disable 3180 -I/opt/apps/intel18/impi18_0/phdf5/1.10.4/x86_64/include  -L/opt/apps/intel18/impi18_0/phdf5/1.10.4/x86_64/lib  -lhdf5" // NOLINT
+#define COMPILED_WITH_OPTIONS " -O3 -std=c++11   -lhdf5" // NOLINT
 
 //----------------------------------------------------------------------------------------
 // macros associated with numerical algorithm (rarely modified)

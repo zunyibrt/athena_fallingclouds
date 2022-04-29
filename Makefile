@@ -15,8 +15,8 @@ MPIFFT_FILE =
 
 CXX := mpicxx
 CPPFLAGS := 
-CXXFLAGS := -O3 -std=c++11 -ipo -xMIC-AVX512 -inline-forceinline -qopenmp-simd -qopt-prefetch=4 -qoverride-limits -diag-disable 3180 -I/opt/apps/intel18/impi18_0/phdf5/1.10.4/x86_64/include
-LDFLAGS :=  -L/opt/apps/intel18/impi18_0/phdf5/1.10.4/x86_64/lib
+CXXFLAGS := -O3 -std=c++11
+LDFLAGS := 
 LDLIBS :=  -lhdf5
 GCOV_CMD := gcov
 

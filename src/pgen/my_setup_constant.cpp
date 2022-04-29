@@ -310,6 +310,7 @@ void cooling(MeshBlock *pmb, const Real time, const Real dt,
 
         // Enforce temperature floor
         temp_new = std::max(temp_new, cooler.tfloor/unit_temp);
+	if (std::isnan(temp_new)) {temp_new = temp;} 
 
         // Update energy based on change in temperature
         cons(IEN,k,j,i) += (temp_new - temp) * (rho/(g-1.0));
